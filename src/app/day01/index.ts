@@ -2,6 +2,9 @@ import { defineAocModule, readLines } from "@/lib";
 
 const lines: string[] = readLines("day01/input.txt");
 
+// Split line by whitespace, then filter empty elements.
+// Rest should be 2 elements, convert from string to number,
+// return as a tuple.
 function parseLine(line: string): [number, number] {
   const parts = line.split(" ").filter((x) => x != "");
   const fst = +parts[0];
@@ -9,6 +12,11 @@ function parseLine(line: string): [number, number] {
   return [fst, snd];
 }
 
+// Return two number arrays.
+// A parsed line consist of two numbers.
+// Add the first to left list (ll).
+// Add the second to right list (rl).
+// Return lists as a tuple.
 function constructLeftRightLists(
   parsedLines: [number, number][]
 ): [number[], number[]] {
@@ -25,6 +33,11 @@ function constructLeftRightLists(
   return [ll, rl];
 }
 
+// Get left and right lists
+// Sort them ascending
+// Zip and enumerate
+// Take the diff of each corresponding element pair.
+// Take the sum
 function sol1(): number {
   const parsed = lines.map(parseLine);
   const [ll, rl] = constructLeftRightLists(parsed);
@@ -41,6 +54,11 @@ function sol1(): number {
   return sum;
 }
 
+// Get left and right lists
+// Traverse each item in left list.
+// Count how many times it occurs in right list.
+// Calculate similarity score.
+// Take the sum
 function sol2(): number {
   const parsed = lines.map(parseLine);
   const [ll, rl] = constructLeftRightLists(parsed);

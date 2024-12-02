@@ -1,4 +1,4 @@
-import module from "@/app/day01";
+import module from "@/app/day02";
 import { formatTime, measure } from "@/lib";
 
 function main() {

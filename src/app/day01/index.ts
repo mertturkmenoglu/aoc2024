@@ -18,7 +18,7 @@ function parseLine(line: string): [number, number] {
 // Add the second to right list (rl).
 // Return lists as a tuple.
 function constructLeftRightLists(
-  parsedLines: [number, number][]
+  parsedLines: [number, number][],
 ): [number[], number[]] {
   const len = parsedLines.length;
   const ll = new Array(len).fill(0);

@@ -11,7 +11,7 @@ function mul(s: string): number {
 // If v is true (sol 1), calculate mul and sum, else check if enabled.
 // Only add to sum if enabled
 function compute(line: string, v: boolean): number {
-  const regex = /mul\(\d{1,3},\d{1,3}\)|do\(\)|don\'t\(\)/g;
+  const regex = /mul\(\d+,\d+\)|do\(\)|don\'t\(\)/g;
   let [sum, enabled] = [0, true];
 
   for (const [s] of line.matchAll(regex)) {

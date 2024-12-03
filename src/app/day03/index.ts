@@ -3,8 +3,8 @@ import { defineAocModule, readLines } from "@/lib";
 const lines: string[] = readLines("day03/input.txt");
 
 function mul(s: string): number {
-  const arr = s.replace(/mul\(|\)/g, "").split(",");
-  return arr.map(Number).reduce((acc, x) => acc * x, 1);
+  let [a, b] = s.slice(4, -1).split(",").map(Number);
+  return a * b;
 }
 
 // Find mul, do, and don't statements and loop them.

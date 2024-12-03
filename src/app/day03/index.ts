@@ -2,37 +2,22 @@ import { defineAocModule, readLines } from "@/lib";
 
 const lines: string[] = readLines("day03/input.txt");
 
-// take a mul statement like: mul(X,Y)
-// calculate X * Y and return it
 function mul(s: string): number {
-  let [n1, n2] = s
-    .replaceAll("mul(", "")
-    .replaceAll(")", "")
-    .split(",")
-    .map(Number);
-  return n1 * n2;
+  const arr = s.replace(/mul\(|\)/g, "").split(",");
+  return arr.map(Number).reduce((acc, x) => acc * x, 1);
 }
 
-// Find mul, do, and don't statements
-// Loop them.
-// If v is true (sol 1), calculate mul and sum
-// If v is false (sol 2), alternate between enabled and disabled
-// Only calculate mul and add it to sum if it's enabled
+// Find mul, do, and don't statements and loop them.
+// If v is true (sol 1), calculate mul and sum, else check if enabled.
+// Only add to sum if enabled
 function compute(line: string, v: boolean): number {
   const regex = /mul\(\d{1,3},\d{1,3}\)|do\(\)|don\'t\(\)/g;
-  let sum = 0;
-  let enabled = true;
+  let [sum, enabled] = [0, true];
 
   for (const [s] of line.matchAll(regex)) {
     const isMul = s.startsWith("mul");
-
-    if (!isMul) {
-      enabled = v || s === "do()";
-    }
-
-    if (enabled && isMul) {
-      sum += mul(s);
-    }
+    enabled = !isMul ? v || s === "do()" : enabled;
+    sum += enabled && isMul ? mul(s) : 0;
   }
 
   return sum;

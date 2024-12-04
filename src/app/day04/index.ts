@@ -1,14 +1,11 @@
 import { defineAocModule, readLines, diagonalCoefs as F, sum } from "@/lib";
 
-type N = number;
-type S = string;
-
-let [L, t, D2] = [readLines("day04/input.txt"), [0, 1, 2, 3], (r: N, c: N) => D([X(r + 1, c + 1), r + 2, c + 2, r, c])];
-let [g, P] = [L.map((l) => l.split("")), (x: S) => ["SAM", "MAS"].includes(x)];
-let [A, rg, s] = [() => new Array(L.length).fill(0), [/XMAS/g, /SAMX/g], (l: S) => sum(rg.map((r) => [...l.matchAll(r)].length))];
-let [X, Y] = [(r: N, c: N) => g[r]?.[c], (i: N) => g.map((r) => r[i]).join("")];
-let E = (r: N, c: N) => F.map(([a, b]) => t.map((x) => X(r + x * a, c + x * b)));
-let C = (r: N, c: N) => sum(E(r, c).map((x) => +(x.join("") === "XMAS")));
+let [L, t, D2] = [readLines("day04/input.txt"), [0, 1, 2, 3], (r: number, c: number) => D([X(r + 1, c + 1), r + 2, c + 2, r, c])];
+let [g, P] = [L.map((l) => l.split("")), (x: string) => ["SAM", "MAS"].includes(x)];
+let [A, rg, s] = [() => new Array(L.length).fill(0), [/XMAS/g, /SAMX/g], (l: string) => sum(rg.map((r) => [...l.matchAll(r)].length))];
+let [X, Y] = [(r: number, c: number) => g[r]?.[c], (i: number) => g.map((r) => r[i]).join("")];
+let E = (r: number, c: number) => F.map(([a, b]) => t.map((x) => X(r + x * a, c + x * b)));
+let C = (r: number, c: number) => sum(E(r, c).map((x) => +(x.join("") === "XMAS")));
 let D = ([m, a, b, r, c]: any) => [X(r, c) + m + X(a, b), X(a, c) + m + X(r, b)].every(P);
 
 export default defineAocModule({

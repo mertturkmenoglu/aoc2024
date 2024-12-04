@@ -7,11 +7,10 @@ function gridify(rows: string[]): string[][] {
   return rows.map((s) => s.split(""));
 }
 
-function searchArr(arr: string[]): number {
+function searchLine(line: string): number {
   const re1 = /XMAS/g;
   const re2 = /SAMX/g;
 
-  const line = arr.join("");
   const l1 = [...line.matchAll(re1)].length;
   const l2 = [...line.matchAll(re2)].length;
 
@@ -25,36 +24,21 @@ function checkDiagonals(row: number, col: number): number {
     return 0;
   }
 
-  if (
-    grid[row + 1]?.[col + 1] === "M" &&
-    grid[row + 2]?.[col + 2] === "A" &&
-    grid[row + 3]?.[col + 3] === "S"
-  ) {
-    count++;
-  }
+  const dirs = [
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1],
+  ];
 
-  if (
-    grid[row + 1]?.[col - 1] === "M" &&
-    grid[row + 2]?.[col - 2] === "A" &&
-    grid[row + 3]?.[col - 3] === "S"
-  ) {
-    count++;
-  }
-
-  if (
-    grid[row - 1]?.[col + 1] === "M" &&
-    grid[row - 2]?.[col + 2] === "A" &&
-    grid[row - 3]?.[col + 3] === "S"
-  ) {
-    count++;
-  }
-
-  if (
-    grid[row - 1]?.[col - 1] === "M" &&
-    grid[row - 2]?.[col - 2] === "A" &&
-    grid[row - 3]?.[col - 3] === "S"
-  ) {
-    count++;
+  for (let [a, b] of dirs) {
+    if (
+      grid[row + a]?.[col + b] === "M" &&
+      grid[row + 2 * a]?.[col + 2 * b] === "A" &&
+      grid[row + 3 * a]?.[col + 3 * b] === "S"
+    ) {
+      count++;
+    }
   }
 
   return count;
@@ -68,37 +52,21 @@ function check2(r: number, c: number): number {
     return 0;
   }
 
-  if (el === "M") {
-    if (grid[r + 1]?.[c + 1] === "A" && grid[r + 2]?.[c + 2] === "S") {
-      if (
-        grid[r + 2]?.[c] === "M" &&
-        grid[r + 1]?.[c + 1] === "A" &&
-        grid[r]?.[c + 2] === "S"
-      ) {
-        count++;
-      } else if (
-        grid[r + 2]?.[c] === "S" &&
-        grid[r + 1]?.[c + 1] === "A" &&
-        grid[r]?.[c + 2] === "M"
-      ) {
-        count++;
-      }
-    }
-  } else if (el === "S") {
-    if (grid[r + 1]?.[c + 1] === "A" && grid[r + 2]?.[c + 2] === "M") {
-      if (
-        grid[r + 2]?.[c] === "M" &&
-        grid[r + 1]?.[c + 1] === "A" &&
-        grid[r]?.[c + 2] === "S"
-      ) {
-        count++;
-      } else if (
-        grid[r + 2]?.[c] === "S" &&
-        grid[r + 1]?.[c + 1] === "A" &&
-        grid[r]?.[c + 2] === "M"
-      ) {
-        count++;
-      }
+  const comp = el === "M" ? "S" : "M";
+
+  if (grid[r + 1]?.[c + 1] === "A" && grid[r + 2]?.[c + 2] === comp) {
+    if (
+      grid[r + 2]?.[c] === "M" &&
+      grid[r + 1]?.[c + 1] === "A" &&
+      grid[r]?.[c + 2] === "S"
+    ) {
+      count++;
+    } else if (
+      grid[r + 2]?.[c] === "S" &&
+      grid[r + 1]?.[c + 1] === "A" &&
+      grid[r]?.[c + 2] === "M"
+    ) {
+      count++;
     }
   }
 
@@ -113,13 +81,13 @@ function sol1(): number {
   let count = 0;
   // check rows
   for (let i = 0; i < lines.length; i++) {
-    count += searchArr(grid[i]);
+    count += searchLine(lines[i]);
   }
 
   // check cols
   for (let i = 0; i < grid[0].length; i++) {
     const col = getCol(i);
-    count += searchArr(col);
+    count += searchLine(col.join(""));
   }
 
   // check diagonals
@@ -146,8 +114,8 @@ function sol2(): number {
 
 export default defineAocModule({
   day: 4,
-  exp1: 0,
-  exp2: 0,
+  exp1: 2517,
+  exp2: 1960,
   sol1,
   sol2,
 });

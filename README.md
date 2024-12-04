@@ -1,13 +1,7 @@
 # Advent of Code 2024
 
-To install dependencies:
+## WTF is this?
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun dev
-```
+- I _specifically_ make everything ugly.
+- First, I solve the question "normally", then I make everything ugly.
+- Why? Just because I want to.

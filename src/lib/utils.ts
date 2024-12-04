@@ -53,3 +53,7 @@ export const cardinalCoefs: Array<[number, number]> = [
   [0, -1],
   [-1, 0],
 ];
+
+export function sum(arr: number[]): number {
+  return arr.reduce((acc, x) => acc + x, 0);
+}

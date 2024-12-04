@@ -1,41 +1,30 @@
-import { defineAocModule, readLines, diagonalCoefs as coefs } from "@/lib";
+import { defineAocModule, readLines, diagonalCoefs as coefs, sum } from "@/lib";
 
-const lines: string[] = readLines("day04/input.txt");
-const g: string[][] = lines.map((l) => l.split(""));
-const A = () => new Array(lines.length).fill(0);
-
-function s(line: string): number {
-  const [a, b] = [/XMAS/g, /SAMX/g].map((r) => [...line.matchAll(r)].length);
-  return a + b;
-}
+const [ls] = [readLines("day04/input.txt")];
+const [g, t] = [ls.map((l) => l.split("")), [0, 1, 2, 3]];
+const [A, rg] = [() => new Array(ls.length).fill(0), [/XMAS/g, /SAMX/g]];
+const s = (l: string) => rg.reduce((S, r) => S + [...l.matchAll(r)].length, 0);
 
 function c1(r: number, c: number): number {
-  let _ = [0, 1, 2, 3];
-  return coefs
-    .map(([a, b]) => _.map((x) => g[r + x * a]?.[c + x * b]).join(""))
-    .filter((x) => x === "XMAS").length;
+  return coefs.reduce((acc, [a, b]) => {
+    return acc + +(t.map((x) => g[r + x * a]?.[c + x * b]).join("") === "XMAS");
+  }, 0);
 }
 
 function c2(r: number, c: number): number {
-  let a = g[r + 1]?.[c + 1];
-  let b = "MS".includes(g[r][c]) && a === "A";
-  let d = g[r + 2]?.[c + 2] === (g[r][c] === "M" ? "S" : "M");
-  let e = b && d && ["SAM", "MAS"].includes(g[r + 2]?.[c] + a + g[r]?.[c + 2]);
-  return e ? 1 : 0;
+  let [z, y, x, f] = [g[r][c], c + 2, g[r][c] === "M" ? "S" : "M", r + 2];
+  let b = "MS".includes(z) && g[r + 1]?.[c + 1] === "A" && g[f]?.[y] === x;
+  return +(b && ["SM", "MS"].includes(g[f]?.[c] + g[r]?.[y]));
 }
 
-function sol1(): number {
-  return lines.reduce((acc, l, i) => {
-    acc += s(l) + s(g.map((row) => row[i]).join(""));
-    return acc + A().reduce((acc, _, j) => acc + c1(i, j), 0);
+const sol1 = () =>
+  ls.reduce((I, l, i) => {
+    I += s(l) + s(g.map((r) => r[i]).join(""));
+    return I + A().reduce((J, _, j) => J + c1(i, j), 0);
   }, 0);
-}
 
-function sol2(): number {
-  return A().reduce((I, _, i) => {
-    return I + A().reduce((J, _, j) => J + c2(i, j), 0);
-  }, 0);
-}
+const sol2 = () =>
+  A().reduce((I, _, i) => I + A().reduce((J, _, j) => J + c2(i, j), 0), 0);
 
 export default defineAocModule({
   day: 4,

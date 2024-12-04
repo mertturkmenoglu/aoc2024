@@ -60,6 +60,51 @@ function checkDiagonals(row: number, col: number): number {
   return count;
 }
 
+function check2(r: number, c: number): number {
+  let count = 0;
+  const el = grid[r][c];
+
+  if (el !== "M" && el !== "S") {
+    return 0;
+  }
+
+  if (el === "M") {
+    if (grid[r + 1]?.[c + 1] === "A" && grid[r + 2]?.[c + 2] === "S") {
+      if (
+        grid[r + 2]?.[c] === "M" &&
+        grid[r + 1]?.[c + 1] === "A" &&
+        grid[r]?.[c + 2] === "S"
+      ) {
+        count++;
+      } else if (
+        grid[r + 2]?.[c] === "S" &&
+        grid[r + 1]?.[c + 1] === "A" &&
+        grid[r]?.[c + 2] === "M"
+      ) {
+        count++;
+      }
+    }
+  } else if (el === "S") {
+    if (grid[r + 1]?.[c + 1] === "A" && grid[r + 2]?.[c + 2] === "M") {
+      if (
+        grid[r + 2]?.[c] === "M" &&
+        grid[r + 1]?.[c + 1] === "A" &&
+        grid[r]?.[c + 2] === "S"
+      ) {
+        count++;
+      } else if (
+        grid[r + 2]?.[c] === "S" &&
+        grid[r + 1]?.[c + 1] === "A" &&
+        grid[r]?.[c + 2] === "M"
+      ) {
+        count++;
+      }
+    }
+  }
+
+  return count;
+}
+
 function getCol(a: number): string[] {
   return grid.map((row) => row[a]);
 }
@@ -88,7 +133,15 @@ function sol1(): number {
 }
 
 function sol2(): number {
-  return 0;
+  let count = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    for (let j = 0; j < lines[i].length; j++) {
+      count += check2(i, j);
+    }
+  }
+
+  return count;
 }
 
 export default defineAocModule({

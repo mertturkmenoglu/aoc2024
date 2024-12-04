@@ -39,3 +39,17 @@ export function permutation<T>(arr: T[]): T[][] {
 
   return all;
 }
+
+export const diagonalCoefs: Array<[number, number]> = [
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+];
+
+export const cardinalCoefs: Array<[number, number]> = [
+  [0, 1],
+  [1, 0],
+  [0, -1],
+  [-1, 0],
+];

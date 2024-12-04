@@ -1,11 +1,7 @@
-import { defineAocModule, readLines } from "@/lib";
+import { defineAocModule, readLines, diagonalCoefs as coefs } from "@/lib";
 
 const lines: string[] = readLines("day04/input.txt");
-const g: string[][] = gridify(lines);
-
-function gridify(rows: string[]): string[][] {
-  return rows.map((s) => s.split(""));
-}
+const g: string[][] = lines.map((l) => l.split(""));
 
 function searchLine(line: string): number {
   const [a, b] = [/XMAS/g, /SAMX/g].map((r) => [...line.matchAll(r)].length);
@@ -13,12 +9,7 @@ function searchLine(line: string): number {
 }
 
 function checkDiagonals(r: number, c: number): number {
-  return [
-    [1, 1],
-    [1, -1],
-    [-1, 1],
-    [-1, -1],
-  ].filter(
+  return coefs.filter(
     ([a, b]) =>
       g[r][c] +
         g[r + a]?.[c + b] +
@@ -48,10 +39,6 @@ function check2(r: number, c: number): number {
   return count;
 }
 
-function getCol(a: number): string[] {
-  return g.map((row) => row[a]);
-}
-
 function sol1(): number {
   let count = 0;
 
@@ -60,8 +47,7 @@ function sol1(): number {
   }
 
   for (let i = 0; i < g[0].length; i++) {
-    const col = getCol(i);
-    count += searchLine(col.join(""));
+    count += searchLine(g.map((row) => row[i]).join(""));
   }
 
   for (let i = 0; i < lines.length; i++) {

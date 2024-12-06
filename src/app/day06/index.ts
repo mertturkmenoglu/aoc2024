@@ -6,87 +6,36 @@ type Grid = string[][];
 
 let L = readLines("day06/input.txt");
 let g = L.map((l) => l.split(""));
-let I = ([r, c]: Pos) => !(r < 0 || c < 0 || r >= g.length || c >= g[0].length);
-let O = ([r, c]: Pos, dir: Dir) => [getDeltaForDir(dir)].every(([dr, dc]) => g[r + dr]?.[c + dc] === "#");
-let getDeltaForDir = (dir: Dir) => C[[3, 0, 1, 2][DIRS.indexOf(dir)]];
+let [N] = [L.length];
+let I = ([r, c]: Pos) => !(r < 0 || c < 0 || r >= N || c >= N);
+let O = ([r, c]: Pos, dir: Dir, G: Grid) => [GD(dir)].every(([dr, dc]) => G[r + dr]?.[c + dc] === "#");
+let GD = (dir: Dir) => C[[3, 0, 1, 2][DIRS.indexOf(dir)]];
 let DIRS: Dir[] = ["N", "E", "S", "W"];
-let getNewDir = (d: Dir) => DIRS[(DIRS.indexOf(d) + 1) % DIRS.length];
-let sp = findStartPosition();
+let ND = (d: Dir) => DIRS[(DIRS.indexOf(d) + 1) % 4];
+let A = () => [...new Array(N).keys()];
+let sr = g.findIndex((r) => r.includes("^"));
+let sp = [sr, g[sr].indexOf("^")];
+let S = JSON.stringify;
+let c = ([i, j]: Pos) => (S([i, j]) !== S(sp) ? compute([...g.map((x, ii) => x.map((h, jj) => (ii === i && jj === j ? "#" : h)))]) : -2);
 
-function findStartPosition(): Pos {
-  for (let i = 0; i < g.length; i++) {
-    for (let j = 0; j < g[i].length; j++) {
-      if (g[i][j] === "^") {
-        return [i, j];
-      }
-    }
-  }
-
-  throw new Error("Cannot find starting position");
-}
-
-function compute(): number {
-  let visited = new Map<string, Pos>();
-  let [[r, c], dr, dc, i] = [sp, -1, 0, 0];
-  let dir: Dir = "N";
-
+let compute = (G: Grid) => {
+  let [[r, c], dr, dc, i, dir, v] = [sp, -1, 0, 0, "N" as Dir, new Map<string, Pos>()];
   while (I([r, c])) {
-    if (i > 6_000) {
-      return -1;
-    }
-    i++;
-    // add to visited
-    visited.set(`${r}-${c}`, [r, c]);
-
-    // is there an obstacle directly in front of us?
-    if (O([r, c], dir)) {
-      dir = getNewDir(dir);
-      let delta = getDeltaForDir(dir);
-      dr = delta[0];
-      dc = delta[1];
-      continue;
-    }
-
-    r += dr;
-    c += dc;
-  }
-
-  return visited.size;
-}
-
-function compute2(): number {
-  let counter = 0;
-
-  for (let i = 0; i < g.length; i++) {
-    for (let j = 0; j < g[0].length; j++) {
-      if (i === sp[0] && j === sp[1]) {
-        continue;
-      }
-
-      // alter cell
-      let prev = g[i][j];
-      g[i][j] = "#";
-
-      // call compute
-      let path = compute();
-
-      // is in loop
-      if (path === -1) {
-        counter++;
-      }
-
-      // revert cell change
-      g[i][j] = prev;
+    if (i++ > 6_000) return -1;
+    v.set(S([r, c]), [r, c]);
+    if (O([r, c], dir, G)) {
+      [dir, dr, dc] = [ND(dir), GD(ND(dir))[0], GD(ND(dir))[1]];
+    } else {
+      [r, c] = [r + dr, c + dc];
     }
   }
-
-  return counter;
-}
+  return v.size;
+};
 
 export default defineAocModule({
   day: 6,
   exp1: 5030,
   exp2: 1928,
-  sol1: compute,
-  sol2: compute2,
+  sol1: () => compute(g),
+  sol2: () => A().reduce((acc, i) => acc + A().filter((j) => c([i, j]) === -1).length, 0),
 });

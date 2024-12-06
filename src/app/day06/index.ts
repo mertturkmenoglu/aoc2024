@@ -70,7 +70,7 @@ function compute(startPos: [number, number], g: string[][]): number {
   let i = 0;
 
   while (isInGrid([r, c], g)) {
-    if (i > 30_000) {
+    if (i > 6_000) {
       return -1;
     }
     i++;

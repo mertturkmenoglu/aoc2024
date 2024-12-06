@@ -57,3 +57,24 @@ export const cardinalCoefs: Array<[number, number]> = [
 export function sum(arr: number[]): number {
   return arr.reduce((acc, x) => acc + x, 0);
 }
+
+export function prod(arr: number[]): number {
+  return arr.reduce((acc, x) => acc * x, 1);
+}
+
+export function gcd(a: number, b: number): number {
+  let temp = b;
+
+  while (b !== 0) {
+    b = a % b;
+    a = temp;
+    temp = b;
+  }
+
+  return a;
+}
+
+export function lcm(a: number, b: number): number {
+  return (a * b) / gcd(a, b);
+}
+

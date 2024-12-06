@@ -1,4 +1,4 @@
-import { defineAocModule, permutation, readLines, sum } from "@/lib";
+import { defineAocModule, readLines, sum } from "@/lib";
 
 type V = Map<number, number>;
 

@@ -1,104 +1,15 @@
-import { defineAocModule, readLines } from "@/lib";
+import { defineAocModule, readLines as R, sum } from "@/lib";
 
-const lines: string[] = readLines("day07/input.txt");
-let equations: [number, number[]][] = parseInput();
-
-function parseInput() {
-  const arr: [number, number[]][] = [];
-
-  for (const line of lines) {
-    const [a, b] = line.split(":");
-    const nums = b.trim().split(" ").map(Number);
-    arr.push([+a, nums] as const);
-  }
-
-  return arr;
-}
-
-function c(target: number, current: number, nums: number[]): boolean {
-  const el = nums[0];
-
-  if (el === undefined) {
-    return target === current;
-  }
-
-  let r1 = c(target, current + el, nums.slice(1));
-
-  if (r1) {
-    return true;
-  }
-
-  let r2 = c(target, current * el, nums.slice(1));
-
-  if (r2) {
-    return true;
-  }
-
-  return false;
-}
-
-function c2(target: number, current: number, nums: number[]): boolean {
-  const el = nums[0];
-
-  if (el === undefined) {
-    return target === current;
-  }
-
-  let r1 = c2(target, current + el, nums.slice(1));
-
-  if (r1) {
-    return true;
-  }
-
-  let r2 = c2(target, current * el, nums.slice(1));
-
-  if (r2) {
-    return true;
-  }
-
-  let r3 = c2(target, parseInt(`${current}${el}`), nums.slice(1));
-
-  if (r3) {
-    return true;
-  }
-
-  return false;
-}
-
-function isSolvable(target: number, nums: number[], s1 = true): boolean {
-  return s1
-    ? c(target, nums[0], nums.slice(1))
-    : c2(target, nums[0], nums.slice(1));
-}
-
-function sol1(): number {
-  let sum = 0;
-
-  for (let eq of equations) {
-    if (isSolvable(eq[0], eq[1])) {
-      sum += eq[0];
-    }
-  }
-
-  return sum;
-}
-
-function sol2(): number {
-  let sum = 0;
-
-  for (let eq of equations) {
-    if (isSolvable(eq[0], eq[1], false)) {
-      sum += eq[0];
-    }
-  }
-
-  return sum;
-}
+let L = R("day07/input.txt").map((l) => l.split(":"));
+let E = L.map(([a, b]) => [+a, b.trim().split(" ").map(Number)] as const);
+let A = (C: number, e: number, F: boolean) => (F ? [C + e, C * e, +`${C}${e}`] : [C + e, C * e]);
+let c = (T: number, C: number, N: number[], F: boolean): boolean => (!!N[0] ? A(C, N[0], F).some((x) => c(T, x, N.slice(1), F)) : T === C);
+let S = (T: number, N: number[], s1 = true) => c(T, N[0], N.slice(1), !s1);
 
 export default defineAocModule({
   day: 7,
   exp1: 21_572_148_763_543,
   exp2: 581_941_094_529_163,
-  sol1,
-  sol2,
+  sol1: () => sum(E.map((eq) => (S(eq[0], eq[1]) ? eq[0] : 0))),
+  sol2: () => sum(E.map((eq) => (S(eq[0], eq[1], false) ? eq[0] : 0))),
 });

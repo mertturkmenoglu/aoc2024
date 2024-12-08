@@ -1,4 +1,5 @@
 import fs from "fs";
+import type { Pos } from "./types";
 
 export function isNumberString(s: string): boolean {
   return !isNaN(parseFloat(s));
@@ -78,3 +79,10 @@ export function lcm(a: number, b: number): number {
   return (a * b) / gcd(a, b);
 }
 
+export function posAdd(p1: Pos, p2: Pos): Pos {
+  return [p1[0] + p2[0], p1[1] + p2[1]];
+}
+
+export function posSub(p1: Pos, p2: Pos): Pos {
+  return [p1[0] - p2[0], p1[1] - p2[1]];
+}

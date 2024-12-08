@@ -26,34 +26,7 @@ function findAntennas(): Map<string, Pos[]> {
   return antennas;
 }
 
-function compute(): number {
-  const antinodes = new Set<PosString>();
-  const antennas = findAntennas();
-
-  for (const [_, positions] of antennas) {
-    for (let i = 0; i < positions.length - 1; i++) {
-      for (let j = i + 1; j < positions.length; j++) {
-        const a1 = positions[i];
-        const a2 = positions[j];
-        const [rowDiff, colDiff] = posSub(a1, a2);
-        const an1 = posAdd(a1, [rowDiff, colDiff]);
-        const an2 = posAdd(a2, [-rowDiff, -colDiff]);
-
-        if (Mtr.isOnGrid(m, an1)) {
-          antinodes.add(Key(an1));
-        }
-
-        if (Mtr.isOnGrid(m, an2)) {
-          antinodes.add(Key(an2));
-        }
-      }
-    }
-  }
-
-  return antinodes.size;
-}
-
-function compute2(): number {
+function compute2(sol1: boolean): number {
   const antinodes = new Set<PosString>();
   const antennas = findAntennas();
 
@@ -64,20 +37,26 @@ function compute2(): number {
         const a2 = positions[j];
         const [rowDiff, colDiff] = posSub(a1, a2);
 
-        let ii = 0;
-        let an1 = posSub(a1, [ii * rowDiff, ii * colDiff]);
+        let ii = sol1 ? 1 : 0;
+        let an1 = posAdd(a1, [ii * rowDiff, ii * colDiff]);
         while (Mtr.isOnGrid(m, an1)) {
           antinodes.add(Key(an1));
+          if (sol1) {
+            break;
+          }
           ii++;
-          an1 = posSub(a1, [ii * rowDiff, ii * colDiff]);
+          an1 = posAdd(a1, [ii * rowDiff, ii * colDiff]);
         }
 
-        ii = 0;
-        let an2 = posSub(a2, [-ii * rowDiff, -ii * colDiff]);
+        ii = sol1 ? 1 : 0;
+        let an2 = posAdd(a2, [-ii * rowDiff, -ii * colDiff]);
         while (Mtr.isOnGrid(m, an2)) {
           antinodes.add(Key(an2));
+          if (sol1) {
+            break;
+          }
           ii++;
-          an2 = posSub(a2, [-ii * rowDiff, -ii * colDiff]);
+          an2 = posAdd(a2, [-ii * rowDiff, -ii * colDiff]);
         }
       }
     }
@@ -87,11 +66,11 @@ function compute2(): number {
 }
 
 function sol1(): number {
-  return compute();
+  return compute2(true);
 }
 
 function sol2(): number {
-  return compute2();
+  return compute2(false);
 }
 
 export default defineAocModule({

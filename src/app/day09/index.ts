@@ -1,4 +1,4 @@
-import { defineAocModule, readLines } from "@/lib";
+import { Arr, defineAocModule, readLines } from "@/lib";
 
 const lines: string[] = readLines("day09/input.txt");
 const line = lines[0];
@@ -6,21 +6,12 @@ const line = lines[0];
 function construct(): number[] {
   let s: number[] = [];
   let id = 0;
-  let isFile = true;
 
-  for (const ch of line) {
-    let n = +ch;
-    let newCh = isFile ? id : -1;
-
-    for (let i = 0; i < n; i++) {
-      s.push(newCh);
-    }
-
-    if (isFile) {
+  for (let i = 0; i < line.length; i++) {
+    s.push(...Arr.repeat(+line[i], i % 2 === 0 ? id : -1));
+    if (i % 2 === 0) {
       id++;
     }
-
-    isFile = !isFile;
   }
 
   return s;
@@ -29,10 +20,10 @@ function construct(): number[] {
 function move(s: number[]): number[] {
   const totalDotCount = s.filter((x) => x === -1).length;
   while (!s.slice(-totalDotCount).every((x) => x === -1)) {
-    let firstDotIndex = s.findIndex((x) => x === -1);
-    let lastDigitIndex = s.findLastIndex((x) => x !== -1);
-    s[firstDotIndex] = s[lastDigitIndex];
-    s[lastDigitIndex] = -1;
+    let dot = s.findIndex((x) => x === -1);
+    let digit = s.findLastIndex((x) => x !== -1);
+    s[dot] = s[digit];
+    s[digit] = -1;
   }
 
   return s;
@@ -117,7 +108,7 @@ function sol2(): number {
 export default defineAocModule({
   day: 9,
   exp1: 6_225_730_762_521,
-  exp2: 0,
+  exp2: 6_250_605_700_557,
   sol1,
   sol2,
 });

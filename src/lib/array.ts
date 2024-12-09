@@ -17,3 +17,7 @@ export function zeros(n: number): number[] {
 export function indices(n: number): number[] {
   return [...new Array(n).keys()];
 }
+
+export function repeat<T>(n: number, el: T): T[] {
+  return new Array(n).fill(el);
+}

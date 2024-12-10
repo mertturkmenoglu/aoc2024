@@ -21,3 +21,11 @@ export function indices(n: number): number[] {
 export function repeat<T>(n: number, el: T): T[] {
   return new Array(n).fill(el);
 }
+
+export function range(start: number, end: number): number[] {
+  const arr: number[] = [];
+  for (let i = start; i < end; i++) {
+    arr.push(i);
+  }
+  return arr;
+}

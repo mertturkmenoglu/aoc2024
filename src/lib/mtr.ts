@@ -255,3 +255,12 @@ export function mapCell<T, V>(m: Matrix<T>, fn: (v: T, i: number, j: number) => 
 
   return res;
 }
+
+export function forEachCell<T>(m: Matrix<T>, fn: (v: T, i: number, j: number) => void): void {
+  const [r, c] = dims(m);
+  for (let i = 0; i < r; i++) {
+    for (let j = 0; j < c; j++) {
+      fn(m[i][j], i, j);
+    }
+  }
+}

@@ -90,3 +90,7 @@ export function posSub(p1: Pos, p2: Pos): Pos {
 export function posEq(p1: Pos, p2: Pos): boolean {
   return p1[0] === p2[0] && p1[1] === p2[1];
 }
+
+export function posNeg(p: Pos): Pos {
+  return [-p[0], -p[1]];
+}

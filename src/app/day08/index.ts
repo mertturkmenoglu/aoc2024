@@ -1,82 +1,31 @@
-import { defineAocModule, posAdd, posSub, readLines, type Pos } from "@/lib";
-import { Mtr } from "@/lib";
+import { defineAocModule, posAdd, posSub as J, readLines, type Pos, Mtr, Arr, posNeg } from "@/lib";
 
-const lines: string[] = readLines("day08/input.txt");
-const m: string[][] = lines.map((l) => l.split(""));
+let L = readLines("day08/input.txt");
+let [m, K, M, R] = [L.map((l) => l.split("")), JSON.stringify, Mtr.mapCell, Arr.range];
+let F = (A = new Map<string, Pos[]>()) => M(m, (c, i, j) => (c !== "." ? A.set(c, A.has(c) ? [...A.get(c)!, [i, j]] : [[i, j]]) : A))[0];
 
-type PosString = string;
-
-const Key = JSON.stringify;
-
-function findAntennas(): Map<string, Pos[]> {
-  const antennas = new Map<string, Pos[]>();
-  const [r, c] = Mtr.dims(m);
-
-  for (let i = 0; i < r; i++) {
-    for (let j = 0; j < c; j++) {
-      let ch = Mtr.at(m, [i, j]);
-      if (ch !== ".") {
-        const arr = antennas.get(ch);
-        const has = arr !== undefined;
-        antennas.set(ch, has ? [...arr, [i, j]] : [[i, j]]);
-      }
-    }
+function Y(sol1: boolean, a: Pos, [R, C]: Pos, ii = sol1 ? 1 : 0) {
+  let [S, an] = [new Set<string>(), posAdd(a, [ii * R, ii * C])];
+  while (Mtr.isOnGrid(m, an) && (sol1 ? ii < 2 : true)) {
+    [, an, ii] = [S.add(K(an)), posAdd(a, [(ii + 1) * R, (ii + 1) * C]), ii + 1];
   }
-
-  return antennas;
+  return S;
 }
 
-function compute2(sol1: boolean): number {
-  const antinodes = new Set<PosString>();
-  const antennas = findAntennas();
-
-  for (const [_, positions] of antennas) {
-    for (let i = 0; i < positions.length - 1; i++) {
-      for (let j = i + 1; j < positions.length; j++) {
-        const a1 = positions[i];
-        const a2 = positions[j];
-        const [rowDiff, colDiff] = posSub(a1, a2);
-
-        let ii = sol1 ? 1 : 0;
-        let an1 = posAdd(a1, [ii * rowDiff, ii * colDiff]);
-        while (Mtr.isOnGrid(m, an1)) {
-          antinodes.add(Key(an1));
-          if (sol1) {
-            break;
-          }
-          ii++;
-          an1 = posAdd(a1, [ii * rowDiff, ii * colDiff]);
-        }
-
-        ii = sol1 ? 1 : 0;
-        let an2 = posAdd(a2, [-ii * rowDiff, -ii * colDiff]);
-        while (Mtr.isOnGrid(m, an2)) {
-          antinodes.add(Key(an2));
-          if (sol1) {
-            break;
-          }
-          ii++;
-          an2 = posAdd(a2, [-ii * rowDiff, -ii * colDiff]);
-        }
-      }
-    }
-  }
-
-  return antinodes.size;
+function Z(P: Pos[], S: boolean) {
+  return R(0, P.length - 1).map((i) =>
+    R(i + 1, P.length)
+      .map((j) => [J(P[i], P[j])].map((D) => Y(S, P[i], D).union(Y(S, P[j], posNeg(D))))[0])
+      .reduce((W, x) => W.union(x)),
+  );
 }
 
-function sol1(): number {
-  return compute2(true);
-}
-
-function sol2(): number {
-  return compute2(false);
-}
+let E = (S: boolean) => [...F().values()].map((P) => Z(P, S).reduce((acc, x) => acc.union(x))).reduce((acc, x) => acc.union(x)).size;
 
 export default defineAocModule({
   day: 8,
   exp1: 249,
   exp2: 905,
-  sol1,
-  sol2,
+  sol1: () => E(true),
+  sol2: () => E(false),
 });

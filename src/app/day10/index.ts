@@ -1,80 +1,27 @@
 import { defineAocModule, Mtr, readLines, type Pos, cardinalCoefs as adj, posEq, posAdd, sum, type BfsNode } from "@/lib";
 
-const lines: string[] = readLines("day10/input.txt");
-const g = lines.map((l) => l.split("").map(Number));
-const Key = JSON.stringify;
+let [L, K] = [readLines("day10/input.txt"), JSON.stringify];
+let [g, H] = [L.map((l) => l.split("").map(Number)), (a: N[], c: Pos) => a.some((x) => posEq(c, x.value))];
+type N = BfsNode<Pos>;
+let C = (q: N, path = [] as Pos[]): Pos[] => (q.parent === null ? path : C(q.parent, [...path, q.value]));
 
-function construct(q: BfsNode<Pos>): string {
-  let path: Pos[] = [];
-  let curr = q;
+function A(p: Pos, S = false): number {
+  let [P, O, D]: [Set<string>, N[], N[]] = [new Set(), [{ value: p, parent: null }], []];
 
-  while (curr.parent !== null) {
-    path.push(curr.value);
-    curr = curr.parent;
+  while (O.length > 0) {
+    let [v, _, q] = [Mtr.$at(g, O.at(-1)!.value), D.push(O.at(-1)!), O.pop()!];
+    [v].filter((x) => [9, undefined].includes(x)).map((x) => (x === 9 ? P.add(K(C(q))) : 0));
+    let Y = adj.map((a) => posAdd(q.value, a)).filter((c) => !((!S && H(D, c)) || H(O, c) || v! + 1 !== Mtr.$at(g, c)));
+    O.push(...Y.map((c) => ({ value: c, parent: q })));
   }
 
-  return Key(path);
-}
-
-function calc2([i, j]: Pos, sol2 = false): number {
-  const paths = new Set<string>();
-  let open: BfsNode<Pos>[] = [{ value: [i, j], parent: null }];
-  let closed: BfsNode<Pos>[] = [];
-
-  while (open.length > 0) {
-    const q = open.pop()!;
-    const currValue = Mtr.$at(g, q.value);
-    closed.push(q);
-
-    if (currValue === 9) {
-      paths.add(construct(q));
-      continue;
-    }
-
-    if (currValue === undefined) {
-      continue;
-    }
-
-    const children = adj.map((a) => posAdd(q.value, a));
-
-    for (const child of children) {
-      if (!sol2) {
-        if (closed.some((x) => posEq(child, x.value))) {
-          continue;
-        }
-      }
-
-      if (open.some((x) => posEq(child, x.value))) {
-        continue;
-      }
-
-      if (currValue + 1 !== Mtr.$at(g, child)) {
-        continue;
-      }
-
-      open.push({ value: child, parent: q });
-    }
-  }
-
-  return paths.size;
-}
-
-function compute(sol2 = false): number {
-  return sum(Mtr.mapCell(g, (_, i, j) => (g[i][j] === 0 ? calc2([i, j], sol2) : 0)));
-}
-
-function sol1(): number {
-  return compute();
-}
-
-function sol2(): number {
-  return compute(true);
+  return P.size;
 }
 
 export default defineAocModule({
   day: 10,
   exp1: 510,
   exp2: 1058,
-  sol1,
-  sol2,
+  sol1: () => sum(Mtr.mapCell(g, (_, i, j) => (g[i][j] === 0 ? A([i, j]) : 0))),
+  sol2: () => sum(Mtr.mapCell(g, (_, i, j) => (g[i][j] === 0 ? A([i, j], true) : 0))),
 });

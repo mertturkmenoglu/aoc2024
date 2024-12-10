@@ -1,62 +1,14 @@
-import { defineAocModule, Mtr, readLines, type Pos, cardinalCoefs as adj, posEq, posAdd } from "@/lib";
+import { defineAocModule, Mtr, readLines, type Pos, cardinalCoefs as adj, posEq, posAdd, sum, type BfsNode } from "@/lib";
 
 const lines: string[] = readLines("day10/input.txt");
 const g = lines.map((l) => l.split("").map(Number));
 const Key = JSON.stringify;
 
-type BfsNode = {
-  value: Pos;
-  parent: BfsNode | null;
-};
-
-function calculateScore([i, j]: Pos): number {
-  const nines = new Set<string>();
-  let open: Pos[] = [[i, j]];
-  let closed: Pos[] = [];
-
-  while (open.length > 0) {
-    const q = open.shift()!;
-    closed.push(q);
-
-    if (Mtr.$at(g, q) === 9) {
-      nines.add(Key(q));
-      continue;
-    }
-
-    const children: Pos[] = [];
-    for (const a of adj) {
-      children.push(posAdd(q, a));
-    }
-
-    const currValue = Mtr.$at(g, q);
-
-    if (currValue === undefined) {
-      continue;
-    }
-
-    for (const child of children) {
-      if (closed.some((x) => posEq(child, x)) || open.some((x) => posEq(child, x))) {
-        continue;
-      }
-
-      const childValue = Mtr.$at(g, child);
-      if (currValue + 1 !== childValue) {
-        continue;
-      }
-
-      open.push(child);
-    }
-  }
-
-  return nines.size;
-}
-
-function construct(q: BfsNode): string {
+function construct(q: BfsNode<Pos>): string {
   let path: Pos[] = [];
   let curr = q;
 
   while (curr.parent !== null) {
-    // console.log(Mtr.at(g, curr.value));
     path.push(curr.value);
     curr = curr.parent;
   }
@@ -64,38 +16,39 @@ function construct(q: BfsNode): string {
   return Key(path);
 }
 
-function calc2([i, j]: Pos): number {
+function calc2([i, j]: Pos, sol2 = false): number {
   const paths = new Set<string>();
-  let open: BfsNode[] = [{ value: [i, j], parent: null }];
-  let closed: BfsNode[] = [];
+  let open: BfsNode<Pos>[] = [{ value: [i, j], parent: null }];
+  let closed: BfsNode<Pos>[] = [];
 
   while (open.length > 0) {
     const q = open.pop()!;
+    const currValue = Mtr.$at(g, q.value);
     closed.push(q);
 
-    if (Mtr.$at(g, q.value) === 9) {
+    if (currValue === 9) {
       paths.add(construct(q));
       continue;
     }
-
-    const children: Pos[] = [];
-    for (const a of adj) {
-      children.push(posAdd(q.value, a));
-    }
-
-    const currValue = Mtr.$at(g, q.value);
 
     if (currValue === undefined) {
       continue;
     }
 
+    const children = adj.map((a) => posAdd(q.value, a));
+
     for (const child of children) {
+      if (!sol2) {
+        if (closed.some((x) => posEq(child, x.value))) {
+          continue;
+        }
+      }
+
       if (open.some((x) => posEq(child, x.value))) {
         continue;
       }
 
-      const childValue = Mtr.$at(g, child);
-      if (currValue + 1 !== childValue) {
+      if (currValue + 1 !== Mtr.$at(g, child)) {
         continue;
       }
 
@@ -107,19 +60,7 @@ function calc2([i, j]: Pos): number {
 }
 
 function compute(sol2 = false): number {
-  const [r, c] = Mtr.dims(g);
-  let sum = 0;
-
-  for (let i = 0; i < r; i++) {
-    for (let j = 0; j < c; j++) {
-      if (g[i][j] === 0) {
-        let a = sol2 ? calc2 : calculateScore;
-        sum += a([i, j]);
-      }
-    }
-  }
-
-  return sum;
+  return sum(Mtr.mapCell(g, (_, i, j) => (g[i][j] === 0 ? calc2([i, j], sol2) : 0)));
 }
 
 function sol1(): number {
@@ -133,7 +74,7 @@ function sol2(): number {
 export default defineAocModule({
   day: 10,
   exp1: 510,
-  exp2: 0,
+  exp2: 1058,
   sol1,
   sol2,
 });

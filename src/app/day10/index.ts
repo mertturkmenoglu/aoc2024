@@ -4,6 +4,11 @@ const lines: string[] = readLines("day10/input.txt");
 const g = lines.map((l) => l.split("").map(Number));
 const Key = JSON.stringify;
 
+type BfsNode = {
+  value: Pos;
+  parent: BfsNode | null;
+};
+
 function calculateScore([i, j]: Pos): number {
   const nines = new Set<string>();
   let open: Pos[] = [[i, j]];
@@ -46,14 +51,70 @@ function calculateScore([i, j]: Pos): number {
   return nines.size;
 }
 
-function compute(): number {
+function construct(q: BfsNode): string {
+  let path: Pos[] = [];
+  let curr = q;
+
+  while (curr.parent !== null) {
+    // console.log(Mtr.at(g, curr.value));
+    path.push(curr.value);
+    curr = curr.parent;
+  }
+
+  return Key(path);
+}
+
+function calc2([i, j]: Pos): number {
+  const paths = new Set<string>();
+  let open: BfsNode[] = [{ value: [i, j], parent: null }];
+  let closed: BfsNode[] = [];
+
+  while (open.length > 0) {
+    const q = open.pop()!;
+    closed.push(q);
+
+    if (Mtr.$at(g, q.value) === 9) {
+      paths.add(construct(q));
+      continue;
+    }
+
+    const children: Pos[] = [];
+    for (const a of adj) {
+      children.push(posAdd(q.value, a));
+    }
+
+    const currValue = Mtr.$at(g, q.value);
+
+    if (currValue === undefined) {
+      continue;
+    }
+
+    for (const child of children) {
+      if (open.some((x) => posEq(child, x.value))) {
+        continue;
+      }
+
+      const childValue = Mtr.$at(g, child);
+      if (currValue + 1 !== childValue) {
+        continue;
+      }
+
+      open.push({ value: child, parent: q });
+    }
+  }
+
+  return paths.size;
+}
+
+function compute(sol2 = false): number {
   const [r, c] = Mtr.dims(g);
   let sum = 0;
 
   for (let i = 0; i < r; i++) {
     for (let j = 0; j < c; j++) {
       if (g[i][j] === 0) {
-        sum += calculateScore([i, j]);
+        let a = sol2 ? calc2 : calculateScore;
+        sum += a([i, j]);
       }
     }
   }
@@ -66,7 +127,7 @@ function sol1(): number {
 }
 
 function sol2(): number {
-  return 0;
+  return compute(true);
 }
 
 export default defineAocModule({

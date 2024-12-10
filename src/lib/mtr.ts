@@ -242,3 +242,16 @@ export function revY<T>(m: Matrix<T>): Matrix<T> {
 
   return res;
 }
+
+export function mapCell<T, V>(m: Matrix<T>, fn: (v: T, i: number, j: number) => V): V[] {
+  const [r, c] = dims(m);
+  const res: V[] = [];
+
+  for (let i = 0; i < r; i++) {
+    for (let j = 0; j < c; j++) {
+      res.push(fn(m[i][j], i, j));
+    }
+  }
+
+  return res;
+}

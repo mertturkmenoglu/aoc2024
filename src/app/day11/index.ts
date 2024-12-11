@@ -1,56 +1,16 @@
-import { Arr, defineAocModule, readLines } from "@/lib";
+import { Arr, defineAocModule, readLines, sum, type Pos } from "@/lib";
 
-const lines: string[] = readLines("day11/input.txt");
-const line = lines[0];
-const inp = line.split(" ").map(Number);
-
-function newNumbers(n: number): number[] {
-  if (n === 0) {
-    return [1];
-  }
-
-  let len = `${n}`.length;
-
-  if (len % 2 === 0) {
-    return [+`${n}`.slice(0, len / 2), +`${n}`.slice(len / 2)];
-  }
-
-  return [n * 2024];
-}
-
-function blink(numbers: number[]): number[] {
-  return numbers.flatMap((n) => newNumbers(n));
-}
-
-function blink2(stones: Map<number, number>): Map<number, number> {
-  let ns = new Map<number, number>();
-
-  for (let [stone, amount] of stones.entries()) {
-    newNumbers(stone).forEach((n) => ns.set(n, (ns.get(n) ?? 0) + amount));
-  }
-
-  return ns;
-}
-
-function sol1(): number {
-  return Arr.range(0, 25).reduce((acc) => blink(acc), [...inp]).length;
-}
-
-function sol2(): number {
-  let c = new Map<number, number>();
-  for (let n of inp) {
-    c.set(n, 1);
-  }
-  for (let i = 0; i < 75; i++) {
-    c = blink2(c);
-  }
-  return [...c.values()].reduce((acc, x) => acc + x);
-}
+let [L, R, M] = [readLines("day11/input.txt")[0].split(" ").map(Number), Arr.range, () => new Map<number, number>()];
+let c = new Map<number, number>(L.map((n) => [n, 1] as Pos));
+let N = (n: number, l = `${n}`.length, m = l / 2) => (n === 0 ? [1] : l % 2 === 0 ? [+`${n}`.slice(0, m), +`${n}`.slice(m)] : [n * 2024]);
+let B = (numbers: number[]) => numbers.flatMap((n) => N(n));
+let C = (g: Map<number, number>, r = M()) => [...g.entries()].map(([s, a]) => N(s).forEach((n) => r.set(n, (r.get(n) ?? 0) + a))) && r;
+let V = R(0, 75).reduce((acc) => C(acc), c);
 
 export default defineAocModule({
   day: 11,
   exp1: 186_996,
   exp2: 221_683_913_164_898,
-  sol1,
-  sol2,
+  sol1: () => R(0, 25).reduce((acc) => B(acc), [...L]).length,
+  sol2: () => sum([...V.values()]),
 });

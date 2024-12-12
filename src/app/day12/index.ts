@@ -1,9 +1,17 @@
-import { defineAocModule, Mtr, readLines, type Pos, cardinalCoefs as adj, posAdd, posEq, type Matrix } from "@/lib";
+import { defineAocModule, Mtr, readLines, type Pos, cardinalCoefs as adj, posAdd, posEq, sum } from "@/lib";
 
 const lines: string[] = readLines("day12/input.txt");
 const g = lines.map((l) => l.split(""));
 const go = lines.map((l) => l.split(""));
-const plantToRegions = getPlantToRegions();
+let ptr = ((m = new Map<string, Region[]>()): Map<string, Region[]> => {
+  Mtr.forEachCell(g, (v, i, j) => {
+    if (v === ".") return;
+    let r = getRegion(v, [i, j]);
+    r.forEach((p) => Mtr.set(g, p, "."));
+    m.set(v, [...(m.get(v) ?? []), r]);
+  });
+  return m;
+})();
 
 type Region = Pos[];
 type BfsNode = {
@@ -11,76 +19,25 @@ type BfsNode = {
   parent: BfsNode | null;
 };
 
-function getPlantToRegions(): Map<string, Region[]> {
-  const mapping = new Map<string, Region[]>();
-  const [r, c] = Mtr.dims(g);
-
-  for (let i = 0; i < r; i++) {
-    for (let j = 0; j < c; j++) {
-      const ch = g[i][j];
-      if (ch === ".") {
-        continue;
-      }
-
-      const region = getRegion(ch, [i, j]);
-      const o = mapping.get(ch) ?? [];
-      mapping.set(ch, [...o, region]);
-      for (let p of region) {
-        Mtr.set(g, p, ".");
-      }
-    }
-  }
-
-  return mapping;
-}
-
-function getRegion(plant: string, startPos: Pos): Region {
-  let startNode: BfsNode = { value: startPos, parent: null };
-  let open: BfsNode[] = [startNode];
+function getRegion(crop: string, sp: Pos, open = [{ value: sp, parent: null }] as BfsNode[]): Region {
   let close: BfsNode[] = [];
   let reg: Pos[] = [];
 
   while (open.length > 0) {
-    const q = open.shift()!;
+    let q = open.shift()!;
     close.push(q);
-    const v = Mtr.$at(g, q.value);
-    if (v === plant) {
+    if (Mtr.$at(g, q.value) === crop) {
       reg.push(q.value);
     }
-
-    let children: Pos[] = [];
-
-    for (let p of adj) {
-      children.push(posAdd(q.value, p));
-    }
-
-    for (let c of children) {
-      if (close.some((x) => posEq(x.value, c)) || open.some((x) => posEq(x.value, c))) {
-        continue;
-      }
-
-      if (Mtr.$at(g, c) !== plant) {
-        continue;
-      }
-
-      open.push({ value: c, parent: q });
-    }
+    let has = (arr: BfsNode[], a: Pos) => arr.some((x) => posEq(x.value, a));
+    let A = adj.map((p) => posAdd(q.value, p)).filter((c) => !(has(close, c) || has(open, c) || Mtr.$at(g, c) !== crop));
+    open.push(...A.map((c) => ({ value: c, parent: q })));
   }
 
   return reg;
 }
 
-function getPricing(region: Region): number {
-  let a = area(region);
-  let p = perimeter(region);
-  return a * p;
-}
-
-function getPricing2(region: Region): number {
-  let a = area(region);
-  let s = sides(region);
-  return a * s;
-}
+let price = (r: Region, S = false) => r.length * (S ? sides(r) : perimeter(r));
 
 function sides(region: Region): number {
   let candidates: Pos[] = [];
@@ -133,51 +90,12 @@ function sides(region: Region): number {
   return corners;
 }
 
-function area(region: Region): number {
-  return region.length;
-}
-
-function perimeter(region: Region): number {
-  let sum = 0;
-  for (let p of region) {
-    let plant = Mtr.at(go, p);
-    let count = 4;
-    for (let dp of adj) {
-      let newPos = posAdd(p, dp);
-      if (Mtr.$at(go, newPos) === plant) {
-        count--;
-      }
-    }
-    sum += count;
-  }
-
-  return sum;
-}
-
-function sol1(): number {
-  let sum = 0;
-  for (let [_, regions] of plantToRegions) {
-    for (let region of regions) {
-      sum += getPricing(region);
-    }
-  }
-  return sum;
-}
-
-function sol2(): number {
-  let sum = 0;
-  for (let [_, regions] of plantToRegions) {
-    for (let region of regions) {
-      sum += getPricing2(region);
-    }
-  }
-  return sum;
-}
+let perimeter = (r: Region) => sum(r.map((p) => 4 - adj.filter((dp) => Mtr.$at(go, posAdd(p, dp)) === Mtr.at(go, p)).length));
 
 export default defineAocModule({
   day: 12,
   exp1: 1_485_656,
   exp2: 899_196,
-  sol1,
-  sol2,
+  sol1: () => sum([...ptr.values()].flatMap((rs) => rs.map((r) => price(r)))),
+  sol2: () => sum([...ptr.values()].flatMap((rs) => rs.map((r) => price(r, true)))),
 });

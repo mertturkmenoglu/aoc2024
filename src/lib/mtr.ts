@@ -205,7 +205,7 @@ export function rotateCCW<T>(m: Matrix<T>): Matrix<T> {
 /**
  * Reverse around X axis.
  *
- * Each row becomes reversed.
+ * Each col becomes reversed.
  * @param m is the matrix
  * @returns modified matrix
  */

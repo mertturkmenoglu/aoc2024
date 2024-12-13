@@ -1,4 +1,4 @@
-import { Arr, defineAocModule, readLines, type Pos, sum } from "@/lib";
+import { Arr, defineAocModule, readLines, sum, type Pos } from "@/lib";
 
 type M = [Pos, Pos, Pos];
 

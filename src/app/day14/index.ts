@@ -50,18 +50,64 @@ function compute1() {
   return q1 * q2 * q3 * q4;
 }
 
+function compute2() {
+  let positions: Pos[] = [];
+  let velocities: Pos[] = [];
+  for (let line of lines) {
+    let [p, v] = line.split(" ");
+    let [px, py] = p.slice(2).split(",").map(Number);
+    let [vx, vy] = v.slice(2).split(",").map(Number);
+    positions.push([px, py]);
+    velocities.push([vx, vy]);
+  }
+
+  let t = 0;
+
+  while (true) {
+    let distinct = new Set<string>(positions.map((x) => JSON.stringify(x)));
+
+    if (distinct.size === positions.length) {
+      break;
+    }
+
+    for (let i = 0; i < positions.length; i++) {
+      let [px, py] = positions[i];
+      let [vx, vy] = velocities[i];
+      px += vx;
+      if (px >= X) {
+        px = px - X;
+      }
+      if (px < 0) {
+        px = X + px;
+      }
+
+      py += vy;
+      if (py >= Y) {
+        py = py - Y;
+      }
+      if (py < 0) {
+        py = Y + py;
+      }
+      positions[i] = [px, py];
+    }
+
+    t++;
+  }
+  return t;
+}
+
 function sol1(): number {
   return compute1();
 }
 
 function sol2(): number {
-  return 0;
+  return compute2();
 }
 
 export default defineAocModule({
   day: 14,
   exp1: 232_253_028,
-  exp2: 0,
+  exp2: 8179,
   sol1,
   sol2,
 });

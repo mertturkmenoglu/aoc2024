@@ -1,9 +1,9 @@
 import { readLines } from "@/lib";
 import { expect, test, describe } from "bun:test";
 
-const lines: string[] = readLines("day13/sample.txt");
+const lines: string[] = readLines("day14/sample.txt");
 
-describe("day13 tests", () => {
+describe.only("day14 tests", () => {
   test("sample line length", () => {
     expect(lines.length).toBe(1);
   });

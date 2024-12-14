@@ -1,113 +1,24 @@
-import { defineAocModule, readLines, type Pos } from "@/lib";
+import { Arr, defineAocModule, readLines, type Pos } from "@/lib";
 
-const lines: string[] = readLines("day14/input.txt");
-let X = 101;
-let Y = 103;
+let [L, X, Y, T, xm, ym, K] = [readLines("day14/input.txt"), 101, 103, 100, 50, 51, JSON.stringify];
+let P = (l: string) => l.split(" ").map((x) => x.slice(2).split(",").map(Number) as Pos) as [Pos, Pos];
+let [O, q, pv] = [(a: number, B: number) => (a >= B ? a - B : a < 0 ? a + B : a), [[0, 0] as Pos, [0, 0] as Pos], L.map(P)];
+let A = ([px, py]: Pos, [vx, vy]: Pos, [npx, npy] = [px + vx, py + vy]) => [O(npx, X), O(npy, Y)] as Pos;
 
-function compute1() {
-  let T = 100;
-  let pos: Pos[] = [];
-  for (let line of lines) {
-    let [p, v] = line.split(" ");
-    let [px, py] = p.slice(2).split(",").map(Number);
-    let [vx, vy] = v.slice(2).split(",").map(Number);
-    for (let s = 0; s < T; s++) {
-      px += vx;
-      if (px >= X) {
-        px = px - X;
-      }
-      if (px < 0) {
-        px = X + px;
-      }
+let W = (p = pv.map(([p, v]) => Arr.range(0, T).reduce((acc) => A(acc, v), p))) => {
+  p.filter(([r, c]) => r !== xm && c !== ym).forEach(([r, c]) => q[r < xm ? 0 : 1][c < ym ? 0 : 1]++);
+  return q[0][0] * q[0][1] * q[1][0] * q[1][1];
+};
 
-      py += vy;
-      if (py >= Y) {
-        py = py - Y;
-      }
-      if (py < 0) {
-        py = Y + py;
-      }
-    }
-    pos.push([px, py]);
-  }
-
-  const xm = Math.floor(X / 2);
-  const ym = Math.floor(Y / 2);
-  let [q1, q2, q3, q4] = [0, 0, 0, 0];
-
-  for (let [r, c] of pos) {
-    if (r < xm && c < ym) {
-      q1++;
-    } else if (r < xm && c > ym) {
-      q2++;
-    } else if (r > xm && c < ym) {
-      q3++;
-    } else if (r > xm && c > ym) {
-      q4++;
-    }
-  }
-
-  return q1 * q2 * q3 * q4;
-}
-
-function compute2() {
-  let positions: Pos[] = [];
-  let velocities: Pos[] = [];
-  for (let line of lines) {
-    let [p, v] = line.split(" ");
-    let [px, py] = p.slice(2).split(",").map(Number);
-    let [vx, vy] = v.slice(2).split(",").map(Number);
-    positions.push([px, py]);
-    velocities.push([vx, vy]);
-  }
-
-  let t = 0;
-
-  while (true) {
-    let distinct = new Set<string>(positions.map((x) => JSON.stringify(x)));
-
-    if (distinct.size === positions.length) {
-      break;
-    }
-
-    for (let i = 0; i < positions.length; i++) {
-      let [px, py] = positions[i];
-      let [vx, vy] = velocities[i];
-      px += vx;
-      if (px >= X) {
-        px = px - X;
-      }
-      if (px < 0) {
-        px = X + px;
-      }
-
-      py += vy;
-      if (py >= Y) {
-        py = py - Y;
-      }
-      if (py < 0) {
-        py = Y + py;
-      }
-      positions[i] = [px, py];
-    }
-
-    t++;
-  }
+let Q = (t = 0) => {
+  while (new Set(pv.map((x) => K(x[0]))).size !== pv.length) [pv, t] = [pv.map(([p, v]) => [A(p, v), v]), t + 1];
   return t;
-}
-
-function sol1(): number {
-  return compute1();
-}
-
-function sol2(): number {
-  return compute2();
-}
+};
 
 export default defineAocModule({
   day: 14,
   exp1: 232_253_028,
   exp2: 8179,
-  sol1,
-  sol2,
+  sol1: () => W(),
+  sol2: () => Q(),
 });

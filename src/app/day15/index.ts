@@ -10,6 +10,31 @@ function parseInput() {
   ops = opString.split("");
 }
 
+function parseInput2() {
+  let h: string[][] = [];
+  let [r, c] = Mtr.dims(g);
+
+  for (let i = 0; i < r; i++) {
+    let tmp = "";
+    for (let j = 0; j < c; j++) {
+      let tile = Mtr.at(g, [i, j]);
+
+      if (tile === "#") {
+        tmp += "##";
+      } else if (tile == "O") {
+        tmp += "[]";
+      } else if (tile == ".") {
+        tmp += "..";
+      } else if (tile == "@") {
+        tmp += "@.";
+      }
+    }
+    h.push(tmp.split(""));
+  }
+
+  g = h;
+}
+
 function findStartPos(): Pos {
   let [r, c] = Mtr.dims(g);
   for (let i = 0; i < r; i++) {
@@ -102,6 +127,8 @@ function sol1(): number {
 }
 
 function sol2(): number {
+  parseInput();
+  parseInput2();
   return 0;
 }
 

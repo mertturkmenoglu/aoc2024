@@ -41,6 +41,9 @@ export function permutation<T>(arr: T[]): T[][] {
   return all;
 }
 
+/**
+ * South east - south west - north east - north west directions
+ */
 export const diagonalCoefs: Array<[number, number]> = [
   [1, 1],
   [1, -1],
@@ -48,6 +51,9 @@ export const diagonalCoefs: Array<[number, number]> = [
   [-1, -1],
 ];
 
+/**
+ * East - South - West - North directions
+ */
 export const cardinalCoefs: Array<[number, number]> = [
   [0, 1],
   [1, 0],
@@ -55,14 +61,30 @@ export const cardinalCoefs: Array<[number, number]> = [
   [-1, 0],
 ];
 
+/**
+ * Sum every value in the given array.
+ * @param arr is the number array
+ * @returns sum of the array.
+ */
 export function sum(arr: number[]): number {
   return arr.reduce((acc, x) => acc + x, 0);
 }
 
+/**
+ * Multiply every value in the given array
+ * @param arr is the number array
+ * @returns product of the array.
+ */
 export function prod(arr: number[]): number {
   return arr.reduce((acc, x) => acc * x, 1);
 }
 
+/**
+ * Finds the greatest common divisor of the two given numbers
+ * @param a is the first number
+ * @param b is the second number
+ * @returns gcd
+ */
 export function gcd(a: number, b: number): number {
   let temp = b;
 
@@ -75,22 +97,71 @@ export function gcd(a: number, b: number): number {
   return a;
 }
 
+/**
+ * Finds the least common multiplier of two given numbers
+ * @param a is the first number
+ * @param b is the second number
+ * @returns lcm
+ */
 export function lcm(a: number, b: number): number {
   return (a * b) / gcd(a, b);
 }
 
+/**
+ * Add two Pos vectors.
+ * @param p1 is the first Pos.
+ * @param p2 is the second Pos.
+ * @returns new Pos
+ */
 export function posAdd(p1: Pos, p2: Pos): Pos {
   return [p1[0] + p2[0], p1[1] + p2[1]];
 }
 
+/**
+ * Subtract p2 from p1
+ * @param p1 is the first Pos.
+ * @param p2 is the second Pos.
+ * @returns new Pos
+ */
 export function posSub(p1: Pos, p2: Pos): Pos {
   return [p1[0] - p2[0], p1[1] - p2[1]];
 }
 
+/**
+ * Check if given Pos params are equal to each other.
+ * @param p1 is the first Pos.
+ * @param p2 is the second Pos.
+ * @returns true if they are equal.
+ */
 export function posEq(p1: Pos, p2: Pos): boolean {
   return p1[0] === p2[0] && p1[1] === p2[1];
 }
 
+/**
+ * Reverse the position vector.
+ * @param p is the position
+ * @returns the new Pos vector.
+ */
 export function posNeg(p: Pos): Pos {
   return [-p[0], -p[1]];
+}
+
+/**
+ * Multiply a Pos vector with a scalar value.
+ * @param {Pos} p is the position
+ * @param {number} scalar is the multiply value
+ * @returns {Pos} the new Pos vector.
+ */
+export function posMul(p: Pos, scalar: number): Pos {
+  return [scalar * p[0], scalar * p[1]];
+}
+
+/**
+ * Get integers from a string.
+ *
+ * @param s is the string
+ * @returns number array
+ */
+export function nums(s: string): number[] {
+  return [...s.matchAll(/-?\d+/g)].map((x) => +x[0]);
 }

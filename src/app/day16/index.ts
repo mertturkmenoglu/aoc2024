@@ -1,4 +1,4 @@
-import { defineAocModule, Mtr, readLines, type Pos, posEq, cardinalCoefs, posAdd, posSub } from "@/lib";
+import { defineAocModule, Mtr, readLines, type Pos, posEq, cardinalCoefs as adj, posAdd, posSub, Arr } from "@/lib";
 
 const lines: string[] = readLines("day16/input.txt");
 let g = lines.map((x) => x.split(""));
@@ -11,75 +11,23 @@ type N = {
 };
 
 function findPoint(ch: string): Pos {
-  let [r, c] = Mtr.dims(g);
-  for (let i = 0; i < r; i++) {
-    for (let j = 0; j < c; j++) {
-      if (Mtr.at(g, [i, j]) === ch) {
-        return [i, j];
-      }
-    }
-  }
-  throw new Error("not found");
+  return Mtr.find(g, ch)!;
 }
 
-function constructPath(end: N): Pos[] {
-  let path: Pos[] = [];
-  let tmp: N | null = end;
-
-  while (tmp !== null) {
-    path.push(tmp.value);
-    tmp = tmp.parent;
-  }
-
-  return path.reverse();
+function constructPath(end: N | null, path = [] as Pos[]): Pos[] {
+  return end === null ? path.reverse() : constructPath(end.parent, [...path, end.value]);
 }
 
-function calcNextDir(curr: Pos, next: Pos): string {
-  let diff = posSub(next, curr);
-
-  if (posEq(diff, [-1, 0])) {
-    return "N";
-  }
-
-  if (posEq(diff, [0, 1])) {
-    return "E";
-  }
-
-  if (posEq(diff, [1, 0])) {
-    return "S";
-  }
-
-  if (posEq(diff, [0, -1])) {
-    return "W";
-  }
-
-  throw new Error("unknown turn");
+function next(curr: Pos, next: Pos, diff = posSub(next, curr)): string {
+  return ["E", "S", "W", "N"][adj.findIndex((x) => posEq(diff, x))];
 }
 
-function calcCost(path: Pos[]): number {
-  let dir = "E";
-  let cost = path.length - 1;
-  let turn = 0;
-
-  for (let i = 0; i < path.length - 1; i++) {
-    let nextDir = calcNextDir(path[i], path[i + 1]);
-
-    if (dir !== nextDir) {
-      turn++;
-      dir = nextDir;
-      cost += 1000;
-    }
-  }
-
-  console.log({ step: path.length - 1, turn });
-
-  return cost;
+function calcCost(p: Pos[], s = ["E", p.length - 1] as [string, number]): number {
+  return Arr.repeat(p.length - 1, s).reduce(([d, c], _, i) => ((a = next(p[i], p[i + 1])) => [a, c + (a !== d ? 1000 : 0)])(), s)[1];
 }
 
-function compute1(): number {
-  let startPoint = findPoint("S");
-  let endPoint = findPoint("E");
-  let open: N[] = [{ value: startPoint, parent: null, cost: 0, dir: "E" }];
+function compute1(sp = findPoint("S"), ep = findPoint("E")): Pos[] {
+  let open: N[] = [{ value: sp, parent: null, cost: 0, dir: "E" }];
   let closed: N[] = [];
 
   while (open.length > 0) {
@@ -87,27 +35,17 @@ function compute1(): number {
     const q = open.shift()!;
     closed.push(q);
 
-    if (posEq(q.value, endPoint)) {
+    if (posEq(q.value, ep)) {
       let path = constructPath(q);
-      return calcCost(path);
+      return path;
     }
 
-    let children: Pos[] = cardinalCoefs.map((x) => posAdd(q.value, x));
-
-    for (let child of children) {
-      if (!Mtr.isOnGrid(g, child)) {
+    for (let child of adj.map((x) => posAdd(q.value, x))) {
+      if (!Mtr.isOnGrid(g, child) || Mtr.at(g, child) === "#" || closed.some((x) => posEq(x.value, child))) {
         continue;
       }
 
-      if (Mtr.at(g, child) === "#") {
-        continue;
-      }
-
-      if (closed.some((x) => posEq(x.value, child))) {
-        continue;
-      }
-
-      let nextDir = calcNextDir(q.value, child);
+      let nextDir = next(q.value, child);
       let cost = q.dir === nextDir ? q.cost : q.cost + 1000;
 
       if (!open.some((x) => posEq(x.value, child))) {
@@ -115,19 +53,19 @@ function compute1(): number {
         continue;
       }
 
-      let index = open.findIndex((x) => posEq(x.value, child));
+      let i = open.findIndex((x) => posEq(x.value, child));
 
-      if (index !== -1 && open[index].cost > cost) {
-        open[index] = { cost, dir: nextDir, parent: q, value: child };
+      if (i !== -1 && open[i].cost > cost) {
+        open[i] = { cost, dir: nextDir, parent: q, value: child };
       }
     }
-  } 
+  }
 
-  return -1;
+  return [];
 }
 
 function sol1(): number {
-  return compute1();
+  return calcCost(compute1());
 }
 
 function sol2(): number {
@@ -136,7 +74,7 @@ function sol2(): number {
 
 export default defineAocModule({
   day: 16,
-  exp1: 0,
+  exp1: 106_512,
   exp2: 0,
   sol1,
   sol2,

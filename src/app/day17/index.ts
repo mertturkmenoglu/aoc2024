@@ -3,11 +3,9 @@ import { defineAocModule, nums, readLines } from "@/lib";
 let L = readLines("day17/input.txt");
 let parse = () => [BigInt(nums(L[0])[0]), BigInt(nums(L[1])[0]), BigInt(nums(L[2])[0]), nums(L[4]).map(BigInt)] as const;
 
-function compute(R?: bigint): string {
+function compute(): string {
   let [ra, rb, rc, program] = parse();
-  let ip = 0;
-  let output: bigint[] = [];
-  ra = R !== undefined ? R : ra;
+  let [ip, out] = [0, [] as bigint[]];
 
   let C = (op: bigint): bigint => {
     if (op === 7n) throw new Error("combo operand 7");
@@ -18,24 +16,19 @@ function compute(R?: bigint): string {
   while (ip < program.length) {
     let [I, op] = [program[ip], program[ip + 1]];
 
-    if (I === 0n) ra /= 2n ** C(op);
+    if (I === 0n) ra = ra >> C(op);
     else if (I === 1n) rb ^= op;
     else if (I === 2n) rb = C(op) % 8n;
     else if (I === 3n && ra !== 0n) ip = Number(op) - 2;
     else if (I === 4n) rb ^= rc;
-    else if (I === 6n) rb = ra / 2n ** C(op);
-    else if (I === 7n) rc = ra / 2n ** C(op);
-    else if (I === 5n) {
-      output.push(C(op) % 8n);
-      if (R !== undefined && !program.join(",").startsWith(output.join(","))) {
-        return output.join(",");
-      }
-    }
+    else if (I === 5n) out.push(C(op) % 8n);
+    else if (I === 6n) rb = ra >> C(op);
+    else if (I === 7n) rc = ra >> C(op);
 
     ip += 2;
   }
 
-  return output.join(",");
+  return out.join(",");
 }
 
 export default defineAocModule({

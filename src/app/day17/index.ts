@@ -38,18 +38,10 @@ function compute(R?: bigint): string {
   return output.join(",");
 }
 
-function sol1(): string {
-  return compute();
-}
-
-function sol2(): number {
-  return 0;
-}
-
 export default defineAocModule({
   day: 17,
   exp1: "3,1,4,3,1,7,1,6,3",
   exp2: 0,
-  sol1,
-  sol2,
+  sol1: () => compute(),
+  sol2: () => 0,
 });

@@ -1,34 +1,19 @@
 import { defineAocModule, nums, readLines } from "@/lib";
 
-const lines: string[] = readLines("day17/input.txt");
+let L = readLines("day17/input.txt");
+let parse = () => [BigInt(nums(L[0])[0]), BigInt(nums(L[1])[0]), BigInt(nums(L[2])[0]), nums(L[4]).map(BigInt)] as const;
 
-// 0 adv: Div A by 2**combo, truncate to int, write back to A
-// 1 bxl: Bitwise XOR B with literal, store it back to B
-// 2 bst: combo mod 8, write to B
-// 3 jnz: if A == 0, do nothing. else, jump by literal. IP does not increase
-// 4 bxc: bitwise xor B and C. read operand but ignore it. store back to B.
-// 5 out: combo mod 8, output (sep by comma)
-// 6 bdv: A div by 2**combo, truncate it to int, write to B.
-// 7 cdv: A div by 2**combo, truncate it to int, write to C.
-
-function parse(): [number, number, number, number[]] {
-  let regA = nums(lines[0])[0];
-  let regB = nums(lines[1])[0];
-  let regC = nums(lines[2])[0];
-  let program = nums(lines[4]);
-  return [regA, regB, regC, program];
-}
-
-function compute(): string {
+function compute(R?: bigint): string {
   let [ra, rb, rc, program] = parse();
   let ip = 0;
-  let output: number[] = [];
+  let output: bigint[] = [];
+  ra = R !== undefined ? R : ra;
 
-  let getCombo = (op: number): number => {
-    if (op >= 0 && op <= 3) return op;
-    if (op === 4) return ra;
-    if (op === 5) return rb;
-    if (op === 6) return rc;
+  let getCombo = (op: bigint): bigint => {
+    if (op >= 0n && op <= 3n) return BigInt(op);
+    if (op === 4n) return ra;
+    if (op === 5n) return rb;
+    if (op === 6n) return rc;
     throw new Error("combo operand 7");
   };
 
@@ -36,37 +21,40 @@ function compute(): string {
     let ins = program[ip];
     let operand = program[ip + 1];
 
-    if (ins === 0) {
+    if (ins === 0n) {
       let c = getCombo(operand);
-      ra = Math.trunc(ra / Math.pow(2, c));
+      ra = ra / 2n ** c;
       ip += 2;
-    } else if (ins === 1) {
+    } else if (ins === 1n) {
       rb = rb ^ operand;
       ip += 2;
-    } else if (ins === 2) {
+    } else if (ins === 2n) {
       let c = getCombo(operand);
-      rb = c % 8;
+      rb = c % 8n;
       ip += 2;
-    } else if (ins === 3) {
-      if (ra === 0) {
+    } else if (ins === 3n) {
+      if (ra === 0n) {
         ip += 2;
       } else {
-        ip = operand;
+        ip = Number(operand);
       }
-    } else if (ins === 4) {
+    } else if (ins === 4n) {
       rb = rb ^ rc;
       ip += 2;
-    } else if (ins === 5) {
+    } else if (ins === 5n) {
       let c = getCombo(operand);
-      output.push(c % 8);
+      output.push(c % 8n);
+      if (R !== undefined && !program.join(",").startsWith(output.join(","))) {
+        return output.join(",");
+      }
       ip += 2;
-    } else if (ins === 6) {
+    } else if (ins === 6n) {
       let c = getCombo(operand);
-      rb = Math.trunc(ra / Math.pow(2, c));
+      rb = ra / 2n ** c;
       ip += 2;
-    } else if (ins === 7) {
+    } else if (ins === 7n) {
       let c = getCombo(operand);
-      rc = Math.trunc(ra / Math.pow(2, c));
+      rc = ra / 2n ** c;
       ip += 2;
     } else {
       throw new Error("unknown instruction" + ins);

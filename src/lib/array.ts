@@ -29,3 +29,15 @@ export function range(start: number, end: number, step = 1): number[] {
   }
   return arr;
 }
+
+export function max(arr: number[]): number {
+  let m = Number.NEGATIVE_INFINITY;
+
+  for (let el of arr) {
+    if (el > m) {
+      m = el;
+    }
+  }
+
+  return m;
+}

@@ -1,33 +1,22 @@
 import { defineAocModule, readLines } from "@/lib";
 
 const lines: string[] = readLines("day22/input.txt");
-let initials = lines.map((x) => +x);
 
 function compute1(): bigint {
-  let sum = 0n;
-  let prune = 16_777_216n;
-  for (let num of initials) {
-    let n = BigInt(num);
+  let [sum, prune] = [0n, 16_777_216n];
+  for (let n of lines.map(BigInt)) {
     for (let i = 0; i < 2000; i++) {
-      let mul = n * 64n;
-      n = mul ^ n;
-      n = n % prune;
-      let div = n / 32n;
-      n = div ^ n;
-      n = n % prune;
-      let m2 = n * 2048n;
-      n = m2 ^ n;
-      n = n % prune;
+      n = ((n * 64n) ^ n) % prune;
+      n = ((n / 32n) ^ n) % prune;
+      n = ((n * 2048n) ^ n) % prune;
     }
     sum += n;
   }
   return sum;
 }
 
-function sol1(): number {
-  const res = compute1();
-  console.log({ res });
-  return -1;
+function sol1(): bigint {
+  return compute1();
 }
 
 function sol2(): number {
@@ -36,7 +25,7 @@ function sol2(): number {
 
 export default defineAocModule({
   day: 22,
-  exp1: 0,
+  exp1: 17_965_282_217n,
   exp2: 0,
   sol1,
   sol2,

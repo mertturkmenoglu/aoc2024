@@ -1,10 +1,9 @@
 import { defineAocModule, readLines } from "@/lib";
 
-const lines: string[] = readLines("day23/input.txt");
-let inp = lines.map((l) => l.split("-") as [string, string]);
+let inp = readLines("day23/input.txt").map((l) => l.split("-") as [string, string]);
 let [K, P] = [JSON.stringify, JSON.parse];
 
-let getConnections = () => {
+let conns = (() => {
   let c = new Map<string, Set<string>>();
 
   for (let [a, b] of inp) {
@@ -15,16 +14,15 @@ let getConnections = () => {
   }
 
   return c;
-};
+})();
 
 function comp1(): number {
-  let c = getConnections();
   let sets = new Set<string>();
 
-  for (let [x, s] of c) {
+  for (let [x, s] of conns) {
     for (let y of s) {
-      for (let z of c.get(y)!) {
-        if (x !== z && c.get(z)!.has(x)) {
+      for (let z of conns.get(y)!) {
+        if (x !== z && conns.get(z)!.has(x)) {
           sets.add(K([x, y, z].toSorted()));
         }
       }
@@ -35,23 +33,19 @@ function comp1(): number {
 }
 
 function comp2(): string {
-  let c = getConnections();
   let sets = new Set<string>();
 
   let search = (node: string, required: Set<string>) => {
     let key = K([...required.values()].toSorted());
     if (sets.has(key)) return;
-
     sets.add(key);
 
-    for (let n of c.get(node)!) {
-      if (required.has(n)) continue;
-      if (![...required.values()].every((q) => c.get(q)!.has(n))) continue;
+    for (let n of [...conns.get(node)!].filter((n) => !required.has(n) && required.isSubsetOf(conns.get(n)!))) {
       search(n, new Set<string>([...required.values(), n]));
     }
   };
 
-  c.forEach(([x]) => search(x, new Set([x])));
+  conns.forEach(([x]) => search(x, new Set([x])));
 
   return [...sets.values()]
     .map((x) => P(x) as string[])

@@ -11,6 +11,13 @@ export function readLines(path: string, relative: boolean = true): string[] {
   return fs.readFileSync(truePath).toString().split("\n");
 }
 
+export function readByEmptyLine(path: string, relative: boolean = true): string[][] {
+  return readLines(path, relative)
+    .join("\n")
+    .split("\n\n")
+    .map((group) => group.split("\n"));
+}
+
 export function formatTime(t: number): string {
   return `${t.toFixed(4)} milliseconds`;
 }
